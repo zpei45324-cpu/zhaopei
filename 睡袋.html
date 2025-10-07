@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src='https://lf-package-cn.feishucdn.com/obj/feishu-static/op/fe/devtools_frontend/remote-debug-0.0.1-alpha.6.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亚马逊新品睡袋开发流程看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application is designed as an interactive checklist or SOP dashboard, directly mirroring the four-phase structure of the source document. This task-oriented approach was chosen because the source material is a workflow, not a data report. The primary user goal is to track progress. Key interactions include checking off tasks, which dynamically updates phase-specific and overall progress bars. This structure turns a static document into a functional tool, enhancing usability and engagement for the target user (the designer). -->
+    <!-- Visualization & Content Choices: Report Info: The SOP's four-phase workflow. Goal: Provide a clear, interactive way to track project progress. Viz/Presentation: A stepper/checklist interface with interactive cards for each task. The primary visualization is a set of dynamic progress bars. Interaction: Users click checkboxes to mark tasks as complete. Justification: This method directly supports the user's need to manage a complex process. A traditional chart (bar, pie) is irrelevant here; a progress bar is the most intuitive visualization for completion status. Library/Method: Vanilla JavaScript for state management and DOM manipulation to update the progress bars (styled HTML divs). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8f7f4;
+            color: #3d3d3d;
+        }
+        .task-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        .task-card.completed {
+            background-color: #f0fdf4;
+            border-left-color: #22c55e;
+            border-left-width: 4px;
+        }
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+            color: #6b7280;
+        }
+        .progress-bar-bg {
+            background-color: #e5e7eb;
+        }
+        .progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+            background-color: #3b82f6;
+        }
+        .phase-header {
+            background-image: linear-gradient(to right, #f3e9e0, #e9def0);
+        }
+        .phase-icon {
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+        }
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background-color: rgba(248, 247, 244, 0.85);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">亚马逊新品睡袋开发流程看板</h1>
+            <p class="text-slate-500 mt-2">一个交互式指南，助您高效推进项目，确保万无一失。</p>
+        </header>
+
+        <div id="sticky-nav" class="sticky-header mb-8 shadow-sm rounded-xl border border-slate-200/80">
+            <div class="p-4">
+                <h3 class="font-bold text-lg mb-3 text-slate-700">项目总览</h3>
+                <div class="w-full progress-bar-bg rounded-full h-4">
+                    <div id="total-progress-bar" class="progress-bar-fill h-4 rounded-full text-center text-white text-xs font-semibold" style="width: 0%;"></div>
+                </div>
+                <p id="total-progress-text" class="text-right text-sm mt-1 font-medium text-slate-600">总进度: 0%</p>
+            </div>
+            <nav class="flex justify-around border-t border-slate-200/80 p-2 bg-slate-50/50 rounded-b-xl">
+                <a href="#phase-1" class="text-sm md:text-base font-semibold text-slate-600 hover:text-blue-600 transition">P1: 战略</a>
+                <a href="#phase-2" class="text-sm md:text-base font-semibold text-slate-600 hover:text-blue-600 transition">P2: 开发</a>
+                <a href="#phase-3" class="text-sm md:text-base font-semibold text-slate-600 hover:text-blue-600 transition">P3: 准备</a>
+                <a href="#phase-4" class="text-sm md:text-base font-semibold text-slate-600 hover:text-blue-600 transition">P4: 复盘</a>
+            </nav>
+        </div>
+        
+        <main class="space-y-12">
+            
+            <!-- Phase 1 -->
+            <section id="phase-1" class="phase-section p-4 md:p-6 bg-white rounded-2xl shadow-lg border border-slate-200/80">
+                <div class="mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="phase-icon text-5xl">💡</div>
+                        <div>
+                           <h2 class="text-2xl font-bold text-slate-800">第一阶段：战略研究与策略定义</h2>
+                           <p class="text-slate-500">周期：约2周 | 核心目标：做出有数据支撑的、明智的设计决策。</p>
+                        </div>
+                    </div>
+                    <div class="w-full progress-bar-bg rounded-full h-2.5 mt-4">
+                        <div id="phase-1-progress" class="progress-bar-fill h-2.5 rounded-full" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Task 1.1 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="1">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">1.1 内部数据复盘 (Internal Data Review)</h3>
+                                <p class="text-slate-600 mt-1">动作：与运营、老板共同深入分析内部销售数据，特别是《产品多维度分析表》。</p>
+                                <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🔑 关键问题:</p>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 mt-1 space-y-1">
+                                        <li>过往产品中，哪些花色主题、主色调的销量和转化率最高？</li>
+                                        <li>差评关键词中，是否存在与设计、颜色相关的反馈？</li>
+                                    </ul>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">《往年产品表现分析报告》，总结成功基因与待避开的坑。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Task 1.2 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="1">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">1.2 市场趋势研究 (Market Trend Research)</h3>
+                                <p class="text-slate-600 mt-1">动作：搜索WGSN、Pinterest、Etsy等平台，关注下一年度的春夏童装/家居流行趋势。</p>
+                                <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🔑 关键问题:</p>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 mt-1 space-y-1">
+                                        <li>2025/2026春夏流行色、主题图案是什么？</li>
+                                        <li>目标市场（英、德、法、意、西）的母婴社媒（如Instagram）上正在流行什么风格？</li>
+                                    </ul>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">《2025夏季睡袋设计趋势报告》，包含色彩、主题和风格方向。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Task 1.3 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="1">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">1.3 竞品深度分析 (In-depth Competitor Analysis)</h3>
+                                <p class="text-slate-600 mt-1">动作：采用**“趋势信号筛选法”**，分析亚马逊上近一年内上架且快速增长的“信号品”。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🔑 关键问题:</p>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 mt-1 space-y-1">
+                                        <li>“信号品”的设计风格、色彩搭配、图案细节是怎样的？</li>
+                                        <li>他们的A+页面如何讲述设计故事？</li>
+                                        <li>用户评论中，被赞美的设计点是什么？</li>
+                                    </ul>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">3-5个核心竞品的《竞品分析拆解图》，明确我们的机会点和差异化方向。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Task 1.4 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="1">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">1.4 定义设计策略 (Define Design Strategy)</h3>
+                                <p class="text-slate-600 mt-1">动作：综合以上所有信息，召开项目启动会，明确开发方向。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🔑 关键问题:</p>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 mt-1 space-y-1">
+                                        <li>今年要测试哪几个系列？（例如：北欧森林、法式田园、小小探险家）</li>
+                                        <li>每个系列的目标用户画像、定价区间、核心卖点是什么？</li>
+                                    </ul>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">一份清晰的**《产品设计需求文档 (PDR)》**，作为后续所有工作的“宪法”。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Phase 2 -->
+            <section id="phase-2" class="phase-section p-4 md:p-6 bg-white rounded-2xl shadow-lg border border-slate-200/80">
+                <div class="mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="phase-icon text-5xl">🎨</div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">第二阶段：设计开发与样品确认</h2>
+                            <p class="text-slate-500">周期：约4-6周 | 核心目标：将设计策略转化为高质量、可生产的实体产品。</p>
+                        </div>
+                    </div>
+                    <div class="w-full progress-bar-bg rounded-full h-2.5 mt-4">
+                        <div id="phase-2-progress" class="progress-bar-fill h-2.5 rounded-full" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                     <!-- Task 2.1 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="2">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">2.1 创意与视觉探索 (Creative & Visual Exploration)</h3>
+                                <p class="text-slate-600 mt-1">动作：为每个确定的系列，创建专属的**情绪板 (Mood Board)**，与团队确认整体视觉风格。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">每个系列1-2张情绪板。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Task 2.2 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="2">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">2.2 花色图案设计 (Pattern Design)</h3>
+                                <p class="text-slate-600 mt-1">动作：在Adobe Illustrator或Photoshop中，创作100%原创的、可无缝循环的平铺图案。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🔑 关键点:</p>
+                                    <p class="text-sm text-slate-600 mt-1">考虑原创性、可生产性、系列感。</p>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">每个系列2-3款核心花色的设计稿源文件 (AI/PSD)。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                     <!-- Task 2.3 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="2">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">2.3 设计规范与工艺文件 (Tech Pack & Spec Sheet)</h3>
+                                <p class="text-slate-600 mt-1">动作：制作包含产品效果图、尺寸规格、**潘通色号 (Pantone TCX)**、印花工艺、面辅料要求的详细生产指南。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">一份完整、清晰、中英双语的**《产品工艺单 (Tech Pack)》**。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Task 2.4 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="2">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">2.4 打样与样品修正 (Sampling & Revision)</h3>
+                                <p class="text-slate-600 mt-1">动作：将工艺单发给供应商打样，并跟进修正。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                     <p class="font-semibold text-sm text-slate-500">⚙️ 关键流程:</p>
+                                     <ol class="list-decimal list-inside text-sm text-slate-600 mt-1 space-y-1">
+                                         <li>**颜色确认 (Lab Dips):** 必须先确认小块面料的对色样。</li>
+                                         <li>**初样审核 (1st Sample):** 检查版型、尺寸、印花质量。</li>
+                                         <li>**产前样确认 (PP Sample):** 拿到最终的、可作为大货标准的完美样品。</li>
+                                     </ol>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">经过团队所有人确认签字的**封样 (Sealed Sample)**。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Phase 3 -->
+            <section id="phase-3" class="phase-section p-4 md:p-6 bg-white rounded-2xl shadow-lg border border-slate-200/80">
+                <div class="mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="phase-icon text-5xl">🚀</div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">第三阶段：上市前准备</h2>
+                            <p class="text-slate-500">周期：约2周 (可与P2后期同步) | 核心目标：为产品上市准备好所有“弹药”。</p>
+                        </div>
+                    </div>
+                    <div class="w-full progress-bar-bg rounded-full h-2.5 mt-4">
+                        <div id="phase-3-progress" class="progress-bar-fill h-2.5 rounded-full" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <!-- Task 3.1 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="3">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">3.1 营销素材创作 (Marketing Asset Creation)</h3>
+                                <p class="text-slate-600 mt-1">动作：基于最终样品，制作高质量的视觉素材。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🖼️ 内容:</p>
+                                    <p class="text-sm text-slate-600 mt-1">产品白底图、生活场景图 (Lifestyle Photos)、A+页面素材等。</p>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">一整套用于亚马逊Listing的**视觉素材包**。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Task 3.2 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="3">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">3.2 Listing内容准备 (Listing Content Preparation)</h3>
+                                <p class="text-slate-600 mt-1">动作：与运营合作，确保文案能体现设计价值。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🔑 关键点:</p>
+                                    <p class="text-sm text-slate-600 mt-1">在标题和五点描述中植入设计风格关键词（如：Minimalist, Botanical Print），并为颜色赋予有故事感的名字（如：Sage Green）。</p>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">与运营共同确认的**最终版Listing文案**。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Phase 4 -->
+            <section id="phase-4" class="phase-section p-4 md:p-6 bg-white rounded-2xl shadow-lg border border-slate-200/80">
+                <div class="mb-6">
+                     <div class="flex items-center gap-4">
+                        <div class="phase-icon text-5xl">📊</div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">第四阶段：上市与数据复盘</h2>
+                            <p class="text-slate-500">周期：上市后持续进行 | 核心目标：通过数据验证设计，形成闭环。</p>
+                        </div>
+                    </div>
+                    <div class="w-full progress-bar-bg rounded-full h-2.5 mt-4">
+                        <div id="phase-4-progress" class="progress-bar-fill h-2.5 rounded-full" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <!-- Task 4.1 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="4">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">4.1 核心数据追踪 (Key Metrics Tracking)</h3>
+                                <p class="text-slate-600 mt-1">动作：参考《运营分析产品多维度》表格，定期追踪各花色/系列的表现。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🎯 设计师需重点关注:</p>
+                                    <p class="text-sm text-slate-600 mt-1">**点击率 (CTR)** 反映主图吸引力；**转化率 (CVR)** 反映整体说服力。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Task 4.2 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="4">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">4.2 用户反馈收集 (Customer Feedback Collection)</h3>
+                                <p class="text-slate-600 mt-1">动作：每周阅读产品的用户评论 (Reviews) 和问答 (Q&A)，收集所有关于设计的反馈。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">《用户设计反馈记录表》。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                     <!-- Task 4.3 -->
+                    <div class="task-card p-4 rounded-lg" data-phase="4">
+                         <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1">
+                            <div class="ml-4 flex-1">
+                                <h3 class="font-bold text-lg task-title text-slate-700">4.3 迭代与决策 (Iterate & Decide)</h3>
+                                <p class="text-slate-600 mt-1">动作：上市1-2个月后，与团队召开复盘会议。</p>
+                                 <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200/80">
+                                    <p class="font-semibold text-sm text-slate-500">🎯 决策:</p>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 mt-1 space-y-1">
+                                        <li>**爆款：** 数据最好的款式，准备翻单。</li>
+                                        <li>**潜力款：** 分析数据，优化Listing以提升转化。</li>
+                                        <li>**失败款：** 总结原因，果断清仓，不再补货。</li>
+                                    </ul>
+                                    <p class="font-semibold text-sm text-slate-500 mt-2">📄 产出:</p>
+                                    <p class="text-sm text-slate-600 mt-1">**《新一季产品开发优化建议》**，将经验用于下一个项目，形成良性循环。</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 text-slate-400 text-sm">
+            <p>&copy; 2025 产品开发流程看板. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const taskCheckboxes = document.querySelectorAll('.task-card input[type="checkbox"]');
+            const totalTasks = taskCheckboxes.length;
+
+            function updateProgress() {
+                const completedTasks = document.querySelectorAll('.task-card input[type="checkbox"]:checked').length;
+                
+                const totalProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+                
+                const totalProgressBar = document.getElementById('total-progress-bar');
+                const totalProgressText = document.getElementById('total-progress-text');
+                
+                totalProgressBar.style.width = `${totalProgress}%`;
+                totalProgressBar.textContent = `${Math.round(totalProgress)}%`;
+                totalProgressText.textContent = `总进度: ${Math.round(totalProgress)}% (${completedTasks}/${totalTasks})`;
+
+                document.querySelectorAll('.phase-section').forEach(section => {
+                    const phaseId = section.id.split('-')[1];
+                    const phaseTasks = section.querySelectorAll('.task-card');
+                    const completedPhaseTasks = section.querySelectorAll('.task-card input[type="checkbox"]:checked');
+                    
+                    const phaseProgress = phaseTasks.length > 0 ? (completedPhaseTasks.length / phaseTasks.length) * 100 : 0;
+                    
+                    const phaseProgressBar = document.getElementById(`phase-${phaseId}-progress`);
+                    if (phaseProgressBar) {
+                        phaseProgressBar.style.width = `${phaseProgress}%`;
+                    }
+                });
+            }
+
+            taskCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const card = this.closest('.task-card');
+                    if (this.checked) {
+                        card.classList.add('completed');
+                    } else {
+                        card.classList.remove('completed');
+                    }
+                    updateProgress();
+                });
+            });
+
+            updateProgress();
+            
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
